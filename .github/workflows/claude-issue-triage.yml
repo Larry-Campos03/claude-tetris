@@ -38,8 +38,12 @@ jobs:
             3. Aplica los labels elegidos con
                `gh issue edit ${{ github.event.issue.number }} --add-label "<label>"`.
             4. Publica UN comentario en el issue con
-               `gh issue comment ${{ github.event.issue.number }} --body "..."`
-               que contenga un diagnóstico general con estas secciones:
+               `gh issue comment ${{ github.event.issue.number }} --body "..."`.
+               El comentario DEBE estar escrito en formato Markdown compatible con
+               GitHub (GitHub Flavored Markdown): usa encabezados, **negritas**,
+               listas, bloques de código con ``` y `código en línea` para nombres de
+               archivos y funciones, de modo que GitHub lo renderice correctamente.
+               El diagnóstico debe contener estas secciones:
                  - **Resumen**: en qué consiste el problema o la petición.
                  - **Causa probable**: hipótesis de la raíz del problema.
                  - **Archivos/funciones implicados**: apunta a `game.js`, `index.html`
