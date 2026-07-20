@@ -1,0 +1,56 @@
+name: Claude Issue Triage
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  triage:
+    # Evita re-ejecuciones en bucle por ediciones automáticas de un bot.
+    if: github.event.sender.type != 'Bot'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude issue triage
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Eres el clasificador (triage) de issues de este repositorio: un Tetris en
+            JavaScript vanilla sobre HTML5 Canvas. Los tres archivos fuente son
+            `game.js` (toda la lógica del juego), `index.html` (estructura y canvas) y
+            `style.css` (estilos). No hay build, ni dependencias, ni tests.
+
+            Analiza el issue #${{ github.event.issue.number }} y haz lo siguiente:
+
+            1. Lee su título y cuerpo con `gh issue view ${{ github.event.issue.number }}`.
+            2. Revisa los labels disponibles del repositorio con `gh label list`.
+               Elige SOLO los labels que apliquen de esa lista existente.
+               NO crees labels nuevos bajo ninguna circunstancia.
+            3. Aplica los labels elegidos con
+               `gh issue edit ${{ github.event.issue.number }} --add-label "<label>"`.
+            4. Publica UN comentario en el issue con
+               `gh issue comment ${{ github.event.issue.number }} --body "..."`
+               que contenga un diagnóstico general con estas secciones:
+                 - **Resumen**: en qué consiste el problema o la petición.
+                 - **Causa probable**: hipótesis de la raíz del problema.
+                 - **Archivos/funciones implicados**: apunta a `game.js`, `index.html`
+                   o `style.css` y, si puedes, a funciones concretas.
+                 - **Enfoque de solución sugerido**: pasos de alto nivel para resolverlo.
+               Este diagnóstico servirá como base para implementar la solución después.
+
+            Reglas:
+            - Todo el texto dirigido a personas (labels aparte) va en ESPAÑOL.
+            - Si el evento es una edición y ya existe un comentario de diagnóstico tuyo
+              previo, publica un nuevo comentario dejando claro que es un re-análisis
+              tras la edición, en lugar de duplicar información sin contexto.
+            - Sé conciso y útil; no inventes detalles que no estén en el issue ni en el código.
+          claude_args: '--allowed-tools "Bash(gh issue view:*),Bash(gh issue edit:*),Bash(gh issue comment:*),Bash(gh label list:*)"'
