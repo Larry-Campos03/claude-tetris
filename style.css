@@ -25,6 +25,11 @@
   --restart-bg: #7aa2f7;
   --restart-color: #0f0f17;
   --restart-hover-bg: #9bbdff;
+  --record-highlight-bg: rgba(122, 162, 247, 0.18);
+  --record-highlight-border: rgba(122, 162, 247, 0.5);
+  --input-bg: #14141c;
+  --secondary-color: #e57373;
+  --secondary-hover-bg: rgba(229, 115, 115, 0.12);
 }
 
 [data-theme="light"] {
@@ -48,6 +53,11 @@
   --restart-bg: #3f5fc4;
   --restart-color: #ffffff;
   --restart-hover-bg: #5c78d6;
+  --record-highlight-bg: rgba(63, 95, 196, 0.12);
+  --record-highlight-border: rgba(63, 95, 196, 0.4);
+  --input-bg: #ffffff;
+  --secondary-color: #c0392b;
+  --secondary-hover-bg: rgba(192, 57, 43, 0.08);
 }
 
 body {
@@ -294,4 +304,160 @@ kbd {
 
 #restart-btn:hover {
   background: var(--restart-hover-bg);
+}
+
+.btn-secondary {
+  margin-top: 4px;
+  background: transparent;
+  color: var(--secondary-color);
+  border: 1px solid var(--secondary-color);
+  border-radius: 6px;
+  padding: 8px 20px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background 0.15s;
+}
+
+.btn-secondary:hover {
+  background: var(--secondary-hover-bg);
+}
+
+/* ---- Pantalla de inicio ---- */
+.start-box {
+  width: 260px;
+  gap: 14px;
+}
+
+.start-title {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 6px;
+  color: var(--title-color);
+  text-shadow: 0 0 20px var(--title-shadow);
+}
+
+.stats-row {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ---- Tabla de récords ---- */
+.records-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.records-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.record-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.record-rank {
+  color: var(--label-color);
+  width: 16px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.record-name {
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text);
+}
+
+.record-score {
+  font-weight: 700;
+  color: var(--value-color);
+  flex-shrink: 0;
+}
+
+.record-meta {
+  font-size: 10px;
+  color: var(--controls-color);
+  flex-shrink: 0;
+}
+
+.record-empty {
+  font-size: 12px;
+  color: var(--label-color);
+  font-style: italic;
+  padding: 4px 0;
+}
+
+.record-highlight {
+  background: var(--record-highlight-bg);
+  border: 1px solid var(--record-highlight-border);
+}
+
+/* ---- Ingreso de nombre para récord ---- */
+.name-entry {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+#player-name {
+  flex: 1;
+  min-width: 0;
+  background: var(--input-bg);
+  border: 1px solid var(--kbd-border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+}
+
+#player-name:focus {
+  outline: 2px solid var(--value-color);
+  outline-offset: 1px;
+}
+
+#save-record-btn {
+  background: var(--restart-bg);
+  color: var(--restart-color);
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+#save-record-btn:hover {
+  background: var(--restart-hover-bg);
+}
+
+.hidden {
+  display: none;
 }
