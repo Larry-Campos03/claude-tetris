@@ -54,13 +54,36 @@ const overlayScore = document.getElementById('overlay-score');
 const restartBtn = document.getElementById('restart-btn');
 const themeSwitch = document.getElementById('theme-switch');
 const themeLabel = document.getElementById('theme-label');
+const pauseMenu = document.getElementById('pause-menu');
+const resumeBtn = document.getElementById('resume-btn');
+const pauseRestartBtn = document.getElementById('pause-restart-btn');
+const controlsToggleBtn = document.getElementById('controls-toggle-btn');
+const pauseControls = document.getElementById('pause-controls');
+const startLevelSelect = document.getElementById('start-level');
 
 const THEME_KEY = 'tetris-theme';
+const START_LEVEL_KEY = 'tetris-start-level';
+const MIN_START_LEVEL = 1;
+const MAX_START_LEVEL = 15;
 
 let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId, rewardPending;
+let startLevel = loadStartLevel();
 
 function createBoard() {
   return Array.from({ length: ROWS }, () => new Array(COLS).fill(0));
+}
+
+function loadStartLevel() {
+  try {
+    const raw = localStorage.getItem(START_LEVEL_KEY);
+    const parsed = parseInt(raw, 10);
+    if (Number.isInteger(parsed) && parsed >= MIN_START_LEVEL && parsed <= MAX_START_LEVEL) {
+      return parsed;
+    }
+  } catch (e) {
+    // localStorage no disponible; usar valor por defecto
+  }
+  return 1;
 }
 
 function pickType() {
@@ -130,7 +153,7 @@ function clearLines() {
   if (cleared) {
     lines += cleared;
     score += (LINE_SCORES[cleared] || 0) * level;
-    level = Math.floor(lines / 10) + 1;
+    level = startLevel + Math.floor(lines / 10);
     dropInterval = Math.max(100, 1000 - (level - 1) * 90);
     if (cleared === 4) rewardPending = true;
     updateHUD();
@@ -256,13 +279,13 @@ function togglePause() {
   if (gameOver) return;
   paused = !paused;
   if (!paused) {
+    pauseMenu.classList.add('hidden');
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
     lastTime = performance.now();
     loop(lastTime);
   } else {
     cancelAnimationFrame(animId);
-    overlayTitle.textContent = 'PAUSA';
-    overlayScore.textContent = '';
-    overlay.classList.remove('hidden');
+    pauseMenu.classList.remove('hidden');
   }
 }
 
@@ -310,24 +333,30 @@ function init() {
   board = createBoard();
   score = 0;
   lines = 0;
-  level = 1;
+  level = startLevel;
   paused = false;
   gameOver = false;
   rewardPending = false;
-  dropInterval = 1000;
+  dropInterval = Math.max(100, 1000 - (level - 1) * 90);
   dropAccum = 0;
   lastTime = performance.now();
   next = randomPiece();
   spawn();
   updateHUD();
   overlay.classList.add('hidden');
+  pauseMenu.classList.add('hidden');
+  pauseControls.classList.add('hidden');
   cancelAnimationFrame(animId);
   animId = requestAnimationFrame(loop);
 }
 
 document.addEventListener('keydown', e => {
-  if (e.code === 'KeyP') { togglePause(); return; }
-  if (paused || gameOver) return;
+  if (e.code === 'KeyP' || e.code === 'Escape') { togglePause(); return; }
+  if (paused) {
+    if (e.code === 'Space' || e.code === 'Enter') e.preventDefault();
+    return;
+  }
+  if (gameOver) return;
   switch (e.code) {
     case 'ArrowLeft':
       if (!collide(current.shape, current.x - 1, current.y)) current.x--;
@@ -351,6 +380,27 @@ document.addEventListener('keydown', e => {
 });
 
 restartBtn.addEventListener('click', init);
+resumeBtn.addEventListener('click', togglePause);
+pauseRestartBtn.addEventListener('click', () => {
+  init();
+  if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+});
+controlsToggleBtn.addEventListener('click', () => {
+  pauseControls.classList.toggle('hidden');
+});
+
+startLevelSelect.value = String(startLevel);
+startLevelSelect.addEventListener('change', () => {
+  const parsed = parseInt(startLevelSelect.value, 10);
+  if (Number.isInteger(parsed) && parsed >= MIN_START_LEVEL && parsed <= MAX_START_LEVEL) {
+    startLevel = parsed;
+    try {
+      localStorage.setItem(START_LEVEL_KEY, String(startLevel));
+    } catch (e) {
+      // localStorage no disponible; el valor solo aplica en esta sesión
+    }
+  }
+});
 
 initTheme();
 init();
