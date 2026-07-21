@@ -53,6 +53,7 @@ const overlayTitle = document.getElementById('overlay-title');
 const overlayScore = document.getElementById('overlay-score');
 const restartBtn = document.getElementById('restart-btn');
 const themeSwitch = document.getElementById('theme-switch');
+const themeLabel = document.getElementById('theme-label');
 
 const THEME_KEY = 'tetris-theme';
 
@@ -289,6 +290,7 @@ function applyTheme(theme) {
     document.documentElement.removeAttribute('data-theme');
   }
   themeSwitch.checked = theme === 'light';
+  themeLabel.textContent = theme === 'light' ? 'MODO CLARO' : 'MODO OSCURO';
   if (board) draw();
   if (next) drawNext();
 }
