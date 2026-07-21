@@ -22,8 +22,8 @@ State lives in module-level `let` bindings (`board, current, next, score, lines,
 
 Key invariants worth knowing before editing:
 
-- **Board model**: `ROWS × COLS` matrix of ints. `0` = empty; `1–7` = piece type, which doubles as the index into both `COLORS` and `PIECES`. Cell value *is* the color key — don't decouple them without updating both tables.
-- **Pieces** are square matrices (`PIECES[type]`). `randomPiece()` deep-copies the template, so rotation mutates only the live piece.
+- **Board model**: `ROWS × COLS` matrix of ints. `0` = empty; `1–7` = the classic tetrominoes, `8–12` = non-standard pieces (`8`=+, `9`=U, `10`=Y pentominoes, `11`=1×1, `12`=hollow 3×3), all indexing into both `COLORS` and `PIECES`. Cell value *is* the color key — don't decouple them without updating both tables.
+- **Pieces** are matrices (`PIECES[type]`, not always square). `randomPiece(forceType)` deep-copies the template, so rotation mutates only the live piece. Type selection goes through `pickType()`: `SPECIAL_CHANCE` (12%) rolls one of `SPECIAL_TYPES` (the + / U / Y / hollow pieces), otherwise a uniform classic tetromino. Type `11` (1×1) is never drawn randomly — `clearLines()` sets `rewardPending` on a 4-line clear, and `spawn()` forces the next piece to `REWARD_TYPE` when that flag is set.
 - **Rotation** = `rotateCW` (transpose + row-reverse) plus `tryRotate`'s ad-hoc wall kicks (`[0,-1,1,-2,2]` column offsets). This is not SRS.
 - **Collision** (`collide(shape, ox, oy)`) allows `ny < 0` (above the board) so pieces can spawn/rotate partially off-screen; it only rejects horizontal out-of-bounds and floor.
 - **Game loop**: `requestAnimationFrame(loop)` accumulates `dt` into `dropAccum`; a drop fires when it exceeds `dropInterval`. Pause/game-over work by `cancelAnimationFrame(animId)` — anything that stops or restarts the loop must keep `animId` and `lastTime` consistent, or `dt` spikes on resume.
